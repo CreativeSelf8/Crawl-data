@@ -20,18 +20,24 @@ const Article = require('./article.js');
 
     // console.log(myclassname);   
 
-    let arrayUrl = [];
-    for (let count = 1; count <= 1; count++) {
+    let array = [];
+    for (let count = 1; count <= 232; count++) {
         const pageUrl = 'http://tinhdoannghean.vn/tuoitre/okpublier.asp?id=4&lang=2&page=' + count;
         await page.goto(pageUrl);
-        let elements = await page.evaluate(() => Array.from(document.querySelectorAll('tr[bgcolor="#ECE9D8"] > td'), element => {
-            let object = new Object();
-            console.log(element.innerHTML);
-            return element.innerHTML;
-        }));
-        // elements = elements.filter(url => !url.startsWith('http://tinhdoannghean.vn/tuoitre/okpublier2'));
-        arrayUrl = arrayUrl.concat(elements);
+        let data = [];
+        let dateArray = await page.evaluate(() => Array.from(document.querySelectorAll('tr[bgcolor="#ECE9D8"] > td:nth-child(5)'), element => element.innerHTML));
+        let urlArray = await page.evaluate(() => Array.from(document.querySelectorAll('.subbottom'), element => element.href));
+        urlArray = urlArray.filter(url => !url.startsWith('http://tinhdoannghean.vn/tuoitre/okpublier2'));
+        if (dateArray.length == urlArray.length) {
+            for (let index = 0; index < urlArray.length; index++) {
+                let object = new Object();
+                object.url = urlArray[index];
+                object.date = dateArray[index];
+                data.push(object);
+            }
+        }
+        array = array.concat(data);
     }
-    console.log(arrayUrl);  
+    console.log(array);  
     // await browser.close();
 })();
