@@ -6,7 +6,8 @@ let article = new Schema({
   title: String,
   content: String,
   category: String,
-  quote:String
+  quote:String,
+  publishedDate: String
 });
 
 const model = mongoose.model("article", article);

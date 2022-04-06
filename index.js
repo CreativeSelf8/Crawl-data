@@ -1,9 +1,9 @@
 const puppeteer = require('puppeteer');
 const Article = require('./article.js');
 
-(async() => {
+(async () => {
     const browser = await puppeteer.launch({
-        headless:false,
+        headless: false,
         args: ["--no-sandbox"]
     });
     console.log('Browser openned');
@@ -13,15 +13,10 @@ const Article = require('./article.js');
     console.log('Page loaded');
     await page.$eval("input[name='user'", el => el.value = 'thuthao');
     await page.$eval("input[name='pass'", el => el.value = '123456');
-    await page.$eval("input[type='submit'", form => form.click() );
-    
-
-    // const myclassname = await page.evaluate(() => document.querySelectorAll('.subbottom'));
-
-    // console.log(myclassname);   
-
+    await page.$eval("input[type='submit'", form => form.click());
+    const totalPage = 232;
     let array = [];
-    for (let count = 1; count <= 232; count++) {
+    for (let count = 1; count <= 1; count++) {
         const pageUrl = 'http://tinhdoannghean.vn/tuoitre/okpublier.asp?id=4&lang=2&page=' + count;
         await page.goto(pageUrl);
         let data = [];
@@ -38,6 +33,21 @@ const Article = require('./article.js');
         }
         array = array.concat(data);
     }
-    console.log(array);  
-    // await browser.close();
+
+    let allArticles = [];
+    for (let data of array) {
+        await page.goto(data.url);
+        let article = new Article();
+        article.publishedDate = data.date;
+        article.quote = await page.$eval('#news_short', (el) => el.value);
+        article.title = await page.$eval('input[name="news_name"]', (input) => {
+            return input.getAttribute("value")
+        });
+        article.content =  await page.$eval('#news_full', (el) => el.value);
+
+        allArticles.push(article);
+    }
+    Article.bulkSave(allArticles)
+    console.log(allArticles);
+    await browser.close();
 })();
