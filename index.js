@@ -44,10 +44,12 @@ const Article = require('./article.js');
             return input.getAttribute("value")
         });
         article.content =  await page.$eval('#news_full', (el) => el.value);
+        article.category = await page.$eval('#news_group', (el) => el[0].text);
+        article.subCategory = await page.$eval('#news_cat', (el) => el[0].text);
 
         allArticles.push(article);
     }
-    Article.bulkSave(allArticles)
+    Article.bulkSave(allArticles);
     console.log(allArticles);
     await browser.close();
 })();
